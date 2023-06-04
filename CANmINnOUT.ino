@@ -178,9 +178,6 @@ void setupCBUS(){
   Serial << get_core_num() << F("> mode = ") << ((module_config.FLiM) ? "FLiM" : "SLiM") << F(", CANID = ") << module_config.CANID;
   Serial << get_core_num() << F(", NN = ") << module_config.nodeNum << endl;
 
-  // show code version and copyright notice
-  printConfig();
-
   // set module parameters
   CBUSParams params(module_config);
   params.setVersion(VER_MAJ, VER_MIN, VER_BETA);
@@ -254,12 +251,15 @@ void setupModule(){
 void setup(){
   Serial.begin (115200);
   delay(2000);
-  Serial << endl << endl << get_core_num() << F("> ** CBUS m in n out v1 ** ") << __FILE__ << endl;
+  Serial << endl << get_core_num() << F("> ** CBUS m in n out Dual Core v1 ** ") << __FILE__ << endl;
+
+  // show code version and copyright notice
+  printConfig();
 
   setupCBUS();
 
   // end of setup
-  DEBUG_PRINT(get_core_num() << F("> ready"));
+  DEBUG_PRINT(get_core_num() << F("> CBUS ready"));
   delay(20);
 }
 
