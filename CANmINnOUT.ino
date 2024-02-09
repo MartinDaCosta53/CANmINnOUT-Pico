@@ -50,8 +50,8 @@
 */
 ///////////////////////////////////////////////////////////////////////////////////
 // Pin Use map:
-// Pin 1   GP0  Not Used
-// Pin 2   GP1  Not Used
+// Pin 1   GP0  CAN Rx
+// Pin 2   GP1  CAN Tx
 // Pin 3        0V
 // Pin 4   GP2  Not Used
 // Pin 5   GP3  Not Used
@@ -60,8 +60,8 @@
 // Pin 8        0V
 // Pin 9   GP6  Not Used
 // Pin 10  GP7  Not Used
-// Pin 11  GP8  CAN Rx
-// Pin 12  GP9  CAN Tx
+// Pin 11  GP8  Not Used
+// Pin 12  GP9  Not Used
 // Pin 13   0V
 // Pin 14  GP10 Not Used
 // Pin 15  GP11 Not Used
@@ -120,10 +120,11 @@
 unsigned char mname[7] = { 'm', 'I', 'N', 'n', 'O', 'U', 'T' };
 
 // constants
-const byte VER_MAJ = 2;         // code major version
-const char VER_MIN = 'b';       // code minor version
-const byte VER_BETA = 0;        // code beta sub-version
-const byte MODULE_ID = 99;      // CBUS module type
+const byte VER_MAJ = 2;             // code major version
+const char VER_MIN = 'b';           // code minor version
+const byte VER_BETA = 0;            // code beta sub-version
+const byte MANUFACTURER = MANU_DEV; // for boards in development.
+const byte MODULE_ID = 99;          // CBUS module type
 
 const byte LED_GRN = 14;             // CBUS green SLiM LED pin
 const byte LED_YLW = 15;             // CBUS yellow FLiM LED pin
@@ -146,6 +147,10 @@ const bool active = 0; // 0 is for active low LED drive. 1 is for active high
 
 const int NUM_LEDS = sizeof(LED) / sizeof(LED[0]);
 const int NUM_SWITCHES = sizeof(SWITCH) / sizeof(SWITCH[0]);
+
+//CBUS pins
+const byte CAN_TX = 1;
+const byte CAN_RX = 0;
 
 // CBUS objects
 CBUSConfig module_config;           // module_configuration object
@@ -178,9 +183,13 @@ void setupCBUS(){
   Serial << get_core_num() << F("> mode = ") << ((module_config.FLiM) ? "FLiM" : "SLiM") << F(", CANID = ") << module_config.CANID;
   Serial << get_core_num() << F(", NN = ") << module_config.nodeNum << endl;
 
+  // show code version and copyright notice
+  printConfig();
+
   // set module parameters
   CBUSParams params(module_config);
   params.setVersion(VER_MAJ, VER_MIN, VER_BETA);
+  params.setManufacturerId(MANUFACTURER);
   params.setModuleId(MODULE_ID);
   params.setFlags(PF_FLiM | PF_COMBI);
 
@@ -218,7 +227,7 @@ void setupCBUS(){
 
   // module_configure and start CAN bus and CBUS message processing
   CBUS.setNumBuffers(16, 4);         // more buffers = more memory used, fewer = less
-  CBUS.setPins(1, 0);           // select pins for CAN Tx & Rx
+  CBUS.setPins(CAN_TX, CAN_RX);      // select pins for CAN Tx & Rx
   
   if (!CBUS.begin()) {
     Serial << get_core_num() << F("> can2040 init fail") << endl;
@@ -251,15 +260,12 @@ void setupModule(){
 void setup(){
   Serial.begin (115200);
   delay(2000);
-  Serial << endl << get_core_num() << F("> ** CBUS m in n out Dual Core v1 ** ") << __FILE__ << endl;
-
-  // show code version and copyright notice
-  printConfig();
+  Serial << endl << endl << get_core_num() << F("> ** CBUS m in n out Dual Core v1 ** ") << __FILE__ << endl;
 
   setupCBUS();
 
   // end of setup
-  DEBUG_PRINT(get_core_num() << F("> CBUS ready"));
+  DEBUG_PRINT(get_core_num() << F("> ready"));
   delay(20);
 }
 
