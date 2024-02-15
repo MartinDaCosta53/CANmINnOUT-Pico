@@ -95,7 +95,7 @@
 #define TIME_LOOP_0 0
 #define TIME_LOOP_1 0
 
-#define DEBUG 0  // set to 0 for no serial debug
+#define DEBUG 1  // set to 0 for no serial debug
 
 #if DEBUG
 #define DEBUG_PRINT(S) Serial << S << endl
@@ -123,10 +123,11 @@
 unsigned char mname[7] = { '4', 'I', 'N', '4', 'O', 'U', 'T' };
 
 // constants
-const byte VER_MAJ = 2;     // code major version
-const char VER_MIN = 'b';   // code minor version
-const byte VER_BETA = 0;    // code beta sub-version
-const byte MODULE_ID = 99;  // CBUS module type
+const byte VER_MAJ = 2;             // code major version
+const char VER_MIN = 'b';           // code minor version
+const byte VER_BETA = 0;            // code beta sub-version
+const byte MANUFACTURER = MANU_DEV; // for boards in development.
+const byte MODULE_ID = 82;          // CBUS module type
 
 const byte LED_GRN = 14;  // CBUS green SLiM LED pin
 const byte LED_YLW = 15;  // CBUS yellow FLiM LED pin
@@ -184,6 +185,7 @@ void setupCBUS() {
   // set module parameters
   CBUSParams params(module_config);
   params.setVersion(VER_MAJ, VER_MIN, VER_BETA);
+  params.setManufacturerId(MANUFACTURER);
   params.setModuleId(MODULE_ID);
   params.setFlags(PF_FLiM | PF_COMBI);
 
@@ -254,8 +256,7 @@ void setupModule() {
 void setup() {
   Serial.begin(115200);
   delay(2000);
-  Serial << endl
-         << get_core_num() << F("> ** CBUS 4 in 4 out Dual Core v1 ** ") << __FILE__ << endl;
+  Serial << endl << get_core_num() << F("> ** CBUS 4 in 4 out Dual Core v1 ** ") << __FILE__ << endl;
 
   // show code version and copyright notice
   printConfig();
@@ -264,7 +265,7 @@ void setup() {
 
   // end of setup
   DEBUG_PRINT(get_core_num() << F("> CBUS ready"));
-  delay(20);
+//  delay(20);
 }
 
 void setup1() {
@@ -273,7 +274,7 @@ void setup1() {
 
   // end of setup
   DEBUG_PRINT(get_core_num() << F("> Module ready"));
-  delay(25);
+//  delay(25);
 }
 
 void loop() {
@@ -467,7 +468,7 @@ void receivedData(byte length) {
   }
 
   byte opc = rcvdData[0];
-//delay(50);
+delay(50);
   DEBUG_PRINT(get_core_num() << F("> event handler: index = ") << index << F(", opcode = 0x") << _HEX(rcvdData[0]));
   DEBUG_PRINT(get_core_num() << F("> event handler: length = ") << length);
 
